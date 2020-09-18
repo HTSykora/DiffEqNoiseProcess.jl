@@ -324,3 +324,34 @@ end
 (W::NoiseApproximation)(t) = interpolate!(W,t)
 (W::NoiseApproximation)(u,p,t) = interpolate!(W,t)
 (W::NoiseApproximation)(out1,out2,u,p,t) = interpolate!(out1,out2,W,t)
+
+# Constructed Wiener process
+mutable struct ConstructedWienerGrid{T,N,Tt,T2,fspaceType,inplace} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
+  t::Vector{Tt}
+  u::Vector{T2}
+  W::Vector{T2}
+  fspace::fspaceType # function space constructing the wiener processs
+  curt::Tt
+  curW::T2
+  # curZ::T3
+  dt::Tt
+  dW::T2
+  dZ::Nothing
+  step_setup::Bool
+  reset::Bool
+end
+
+function ConstructedWienerGrid(t,W,fspace;reset=true)
+  val = W[1]
+  curt = t[1]
+  dt = t[2]-t[1]
+  curW = copy(val)
+  dW = copy(val)
+  typeof(val) <: AbstractArray ? iip = true : iip = false
+  ConstructedWienerGrid{typeof(val),ndims(val),typeof(dt),typeof(dW),typeof(fspace),iip}(
+            t,W,W,fspace,curt,curW,dt,dW,nothing,true,reset)
+end
+
+(W::ConstructedWienerGrid)(t) = interpolate!(W,t)
+(W::ConstructedWienerGrid)(u,p,t) = interpolate!(W,t)
+(W::ConstructedWienerGrid)(out1,out2,u,p,t) = interpolate!(out1,out2,W,t)
