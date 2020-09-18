@@ -6,12 +6,18 @@
 abstract type WienerConstructor{Nh} end
 
 # Levy-Ciesielski
+"""
+Trigonometric_LCConstructor(Nh)
+
+Type for the Levy-Ciesielski type Wong-Zakai representation of a Wiener process on the interval [tₙ,tₙ₊₁] using a linear and `Nh` trigonometric functions.
+"""
 struct Trigonometric_LCConstructor{Nh} <: WienerConstructor{Nh} end
 Trigonometric_LCConstructor(Nh::Integer) = Trigonometric_LCConstructor{Nh}()
 
 # Nh: cardinality of the CONS used 
 # ξ: stochastic coefficients of the decomposition
 abstract type WienerFnSpace{Nh,ξType} end 
+
 struct TrigonometricCONS{Nh,ξType,ξVType} <: WienerFnSpace{Nh,ξType} # Trigonomietric complete orthonormal system
     ξ₁::ξType #  ξconst
     ξ₂ₖ::ξVType # ξ_{2k} 
@@ -22,6 +28,12 @@ getincrementvariable(fnspace::TrigonometricCONS) = fnspace.ξ₁
 
 # Kahunen-Loéve:
 a0_correctionterm(Nh) = sqrt(1/12 - (1/(2*(π^2)))*sum(1/k^2 for k in 1:Nh))
+
+"""
+Fourier_KLConstructor(Nh)
+
+Type for the Kahunen-Loéve type Wong-Zakai representation of a Wiener process on the interval [tₙ,tₙ₊₁] using random Fourier series with `2*Nh` base functions.
+"""
 struct Fourier_KLConstructor{Nh} <: WienerConstructor{Nh}
     a0corr::Float64
 end
@@ -44,7 +56,7 @@ getincrementvariable(fnspace::RandomFourierSeries) = fnspace.ξ
 # GenerateFunctions
 
 function generate_ConstructedWienerGrid(t; W0=0.0, Nh=4, fnspace = Fourier_KLConstructor)
-    # t = t0:dt:T + 100eps(T);
+    # t = t0:dt(:T + 100eps(T));
     
     W, CONSs = generate_ConstructedWienerGrid(W0, fnspace(Nh), t[2] - t[1], t)
     ConstructedWienerGrid(t, W, CONSs)

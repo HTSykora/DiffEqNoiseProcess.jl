@@ -62,6 +62,6 @@ export accept_step!, reject_step!, calculate_step!, setup_next_step!, save_noise
 
 export CorrelatedWienerProcess, CorrelatedWienerProcess!
 
-export ConstructedWienerGrid, generate_ConstructedWienerGrid, Trigonometric_LCConstructor, Fourier_KLConstructor
+export ConstructedWienerGrid, generate_ConstructedWienerGrid, Trigonometric_LCConstructor, Fourier_KLConstructor, iterated_Strat_delay, double_Strat_highres, TrigonometricCONS, RandomFourierSeries
 
 end # module

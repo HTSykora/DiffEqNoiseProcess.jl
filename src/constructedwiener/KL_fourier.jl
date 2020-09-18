@@ -1,9 +1,27 @@
-# Kahunen-Loéve: random Fourier sereis
-function Base.copy(fc::RandomFourierSeries)
+# Kahunen-Loéve: random Fourier series
+function Base.copy(fc::RandomFourierSeries{Nh,ξType})
     # TrigonometricCONS{Nh,ξType}(copy(fc.ξs)) # TODO: is a shallow copy safe?
-    deepcopy(fc)
+    deepcopy(fc) # TODO: is shallow copy safe?
 end
 
+"""
+RandomFourierSeries(Nh, ξprototype = 0.0)
+
+Create a struct for the Kahunen-Loéve: type Wong-Zakai representation of a Wiener process on the interval [0,1] using random Fourier series with `2*Nh` base functions (scalable to time interval [tₙ,tₙ₊₁]).
+The object is callable as:
+    `(fc::RandomFourierSeries)(t_,dt)`
+where `dt = tₙ₊₁ - tₙ` and `t_ = t - tₙ`.
+
+`ξprototype <: Union{Number, AbstractVector{<:Number}}` determines the noise type (scalar or diagonal noise supported)
+
+# Examples
+```jldoctest
+julia> t = 1.5; t0 = 1.; t1 = 5.;
+julia> W = RandomFourierSeries(10,0.);
+julia> W(t-t0, t1-t0)
+0.5772330051084346
+```
+"""
 function RandomFourierSeries(Nh::Integer, ξprototype::ξType = 0.0, a0corr = a0_correctionterm(Nh)) where {ξType <: Number}
     ξ = randn(ξType)
     ζₖ = [randn(ξType) for k in 1:Nh]
