@@ -45,6 +45,7 @@ end
 Fourier_KLConstructor(Nh::Integer) = Fourier_KLConstructor{Nh}(a0_correctionterm(Nh))
 
 # Origin: random Fourier series of the Brownian Bridge B(t) = W(t) - t/Δ W(Δ) t∈[0,Δ]
+# Based on Peter E. Kloeden, Eckhard Platen, Henri Schurz - Numerical Solution of SDE Through Computer Experiments (3rd print, 2003) - page 81
 struct RandomFourierSeries{Nh,Type,VType} <: WienerFnSpace{Nh,Type}
     # a0corr::Type # a0 correction term for the simulations/integrals?
     ξ::Type
