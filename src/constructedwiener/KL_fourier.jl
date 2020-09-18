@@ -1,5 +1,5 @@
 # Kahunen-Loéve: random Fourier series
-function Base.copy(fc::RandomFourierSeries{Nh,ξType})
+function Base.copy(fc::RandomFourierSeries{Nh,ξType}) where {Nh,ξType}
     # TrigonometricCONS{Nh,ξType}(copy(fc.ξs)) # TODO: is a shallow copy safe?
     deepcopy(fc) # TODO: is shallow copy safe?
 end

@@ -20,4 +20,5 @@ using Test
   include("two_processes.jl")
   include("extraction_test.jl")
   include("restart_test.jl")
+  include("constructed_wiener_grid.jl")
 end

@@ -1,6 +1,6 @@
 #Iterated Strationovich integral for the Levy-Ciesielski representation utilizing trigonometric functions(still needs multiplication with `dt`)
 # ∫₀ᵈᵗ Wτ(t-τ) dW(t) / dt for diagonal noises
-function _iterated_Strat_delay(W::TrigonometricCONS{Nh,ξType},Wτ::TrigonometricCONS{Nh,ξType}) where Nh
+function _iterated_Strat_delay(W::TrigonometricCONS{Nh,ξType},Wτ::TrigonometricCONS{Nh,ξType}) where {Nh,ξType}
     Itτ = W.ξ₁ .* Wτ.ξ₁ ./2
     for k in 1:Nh
         # .+= ?
