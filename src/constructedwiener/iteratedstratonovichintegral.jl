@@ -1,12 +1,9 @@
-# function Iτ_Strat(W, t_,tτ_,dt_ )
-    # 0.5*(W(t_+dt_) - W(t_)) * (W(tτ_+dt_) - W(tτ_))
-# end
-
 #Iterated Strationovich integral for the Levy-Ciesielski representation utilizing trigonometric functions(still needs multiplication with `dt`)
 # ∫₀ᵈᵗ Wτ(t-τ) dW(t) / dt for diagonal noises
-function _Itτ_Strat(W::TrigonometricCONS{Nh},Wτ::TrigonometricCONS{Nh}) where Nh
-    Itτ = W.ξ₁*Wτ.ξ₁/2
+function _iterated_Strat_delay(W::TrigonometricCONS{Nh,ξType},Wτ::TrigonometricCONS{Nh,ξType}) where Nh
+    Itτ = W.ξ₁ .* Wτ.ξ₁ ./2
     for k in 1:Nh
+        # .+= ?
         Itτ += sqrt(2)*(W.ξ₁ .* Wτ.ξ₂ₖ[k] - Wτ.ξ₁ .* W.ξ₂ₖ[k])/(2k*π)
         Itτ += (W.ξ₂ₖ[k] .* Wτ.ξ₂ₖ₊₁[k] - Wτ.ξ₂ₖ[k] .* W.ξ₂ₖ₊₁[k])/(2k*π)
     end
@@ -16,17 +13,23 @@ end
 
 
 #Iterated Strationovich integral for the random Fourier series representation (still needs multiplication with `dt`)
-function _Itτ_Strat(W::RandomFourierSeries{Nh},Wτ::RandomFourierSeries{Nh}) where Nh # ∫₀ᵈᵗ Wτ(t-τ) dW(t) / dt for diagonal noises
-    Itτ = (W.ξ * Wτ.ξ)/2 - (W.raw_a0 .* Wτ.ξ - Wτ.raw_a0 .* W.ξ) # TODO: check raw_a0 behavior!!!
+function _iterated_Strat_delay(W::RandomFourierSeries{Nh},Wτ::RandomFourierSeries{Nh}) where Nh # ∫₀ᵈᵗ Wτ(t-τ) dW(t) / dt for diagonal noises
+    Itτ = (W.ξ .* Wτ.ξ) ./2 - (W.raw_a0 .* Wτ.ξ .- Wτ.raw_a0 .* W.ξ) # TODO: check raw_a0 behavior!!!
     for k in 1:Nh
+        # .+= ?
         Itτ += (1/(2k*π)) .* (Wτ.ζₖ[k] .* W.ηₖ[k] .- W.ζₖ[k] .* Wτ.ηₖ[k])
     end
 
     Itτ
 end
 
+# Naive implementation of the iterated Strationovich integral 
+# ∫₀ᵈᵗ Wτ(t-τ) dW(t)
+function iterated_Strat_delay(W, t_, tτ_,dt_ )
+    0.5*(W(t_+dt_) - W(t_)) * (W(tτ_+dt_) - W(tτ_))
+end
 
-function Itτ_Strat(W::ConstructedWienerGrid{T,N,Tt,T2,<:AbstractVector{<:WienerFnSpace{<:Nh}}}, t_,tτ_,dt_ ) where {T,N,Tt,T2,Nh}
+function iterated_Strat_delay(W::ConstructedWienerGrid{T,N,Tt,T2,<:AbstractVector{<:WienerFnSpace{<:Nh}}}, t_,tτ_,dt_ ) where {T,N,Tt,T2,Nh}
     @assert t_ >= tτ_ "The condition t >= t-τ is not satisfied!"
     # if (isapprox(t_, tτ_; atol=100eps(typeof(t_)), rtol=100eps(t_)))
     #     return W.dW^2
@@ -70,10 +73,10 @@ function Itτ_Strat(W::ConstructedWienerGrid{T,N,Tt,T2,<:AbstractVector{<:Wiener
     end
     @assert j1 - j0 == i1 - i0 "t = ts[i] or t-τ = ts[j] is wrongly selected"
     Δij = i0 - j0;
-    dt * sum(_Itτ_Strat(fspace[i],fspace[i-Δij]) for i in i0:i1) / sqrt(i1-i0+1) # TODO: Multiple timesteps??? WHY SQRT???
+    dt * sum(_iterated_Strat_delay(fspace[i],fspace[i-Δij]) for i in i0:i1) / sqrt(i1-i0+1) # TODO: Multiple timesteps: sqrt???
 end
   
-function I_Strat(W::ConstructedWienerGrid{T,N,Tt,T2,<:AbstractVector{<:WienerFnSpace{<:Nh}}}, t_,dt_ ) where {T,N,Tt,T2,Nh}
+function double_Strat_highres(W::ConstructedWienerGrid{T,N,Tt,T2,<:AbstractVector{<:WienerFnSpace{<:Nh}}}, t_,dt_ ) where {T,N,Tt,T2,Nh}
 
     ts, timeseries, fspace = W.t, W.W, W.fspace
     tdir = sign(ts[end] - ts[1])
@@ -97,7 +100,7 @@ function I_Strat(W::ConstructedWienerGrid{T,N,Tt,T2,<:AbstractVector{<:WienerFnS
             error("No interpolation is possible in case of iterated stochastic integrals")
         end
     end
-    dt * sum((getincrementvariable(fspace[i]) .^ 2)*0.5 for i in i0:i1) / sqrt(i1-i0+1) # TODO: Multiple timesteps???
+    dt * sum((getincrementvariable(fspace[i]) .^ 2)*0.5 for i in i0:i1) / sqrt(i1-i0+1) # TODO: Multiple timesteps: sqrt???
 end
 
 function gettimeidx(t,ts,tdir)

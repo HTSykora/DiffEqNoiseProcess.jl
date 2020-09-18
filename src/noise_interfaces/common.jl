@@ -55,6 +55,12 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess,dt;
       if W.Z != nothing
         W.curZ .= W.Z[1]
       end
+    elseif W isa ConstructedWienerGrid
+      if isinplace(W)
+        W.curW .= W.W[1]
+      else
+        W.curW = W.W[1]
+      end
     else
       W.curW = W.W[1]
       if W.Z != nothing
@@ -76,22 +82,4 @@ function Base.reverse(W::AbstractNoiseProcess)
     backwardnoise = NoiseWrapper(W, reverse=true)
   end
   return backwardnoise
-end
-  
-function DiffEqBase.reinit!(W::ConstructedWienerGrid,dt;
-                            t0 = W.t[1],
-                            erase_sol = true,
-                            setup_next = false)
-  W.curt = t0
-  W.dt = dt
-  
-  if isinplace(W)
-    W.curW .= W.W[1]
-  else
-    W.curW = W.W[1]
-  end
-  W.step_setup = true
-
-  setup_next && setup_next_step!(W)
-  return nothing
 end
