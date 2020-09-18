@@ -1,5 +1,9 @@
 # Complete OrthoNormal Systems (CONS) used for the Wong-Zakai construction of W(t) 
 # Candidates:
+# TODO: add seed when generating constructedWienerProcesses
+# TODO: check sqrt(i1-i0+1) for multiple steps 
+# TODO: RandomFourierSeries: effect of a0 correction
+
 # Levy-Ciesielski: Trigonometric, Haar, Shauder
 # Kahunen-Loéve: random Fourier series
  
